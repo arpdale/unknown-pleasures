@@ -25,15 +25,15 @@ export function MobileControls({
 
     const categories = [
         { id: 'canvas', label: 'Canvas', icon: Grid },
-        { id: 'density', label: 'Density', icon: Activity },
-        { id: 'peaks', label: 'Peaks', icon: Settings2 },
+        { id: 'density', label: 'Density', icon: Settings2 },
+        { id: 'peaks', label: 'Peaks', icon: Activity },
         { id: 'style', label: 'Style', icon: Palette },
     ] as const;
 
     return (
         <>
-            {/* Floating Action Buttons */}
-            <div className={`fixed right-4 flex flex-col gap-3 transition-all duration-300 ${activeCategory ? 'bottom-[340px]' : 'bottom-24'}`}>
+            {/* Floating Action Buttons - Top Right */}
+            <div className="fixed top-4 right-4 flex flex-col gap-3 z-50">
                 <button
                     onClick={onGenerate}
                     className="p-3 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 active:scale-95 transition-all"
@@ -51,13 +51,13 @@ export function MobileControls({
             </div>
 
             {/* Bottom Navigation */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 pb-safe z-50">
+            <div className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 px-4 py-2 pb-safe z-50">
                 <div className="flex justify-between items-center max-w-md mx-auto">
                     {categories.map((cat) => (
                         <button
                             key={cat.id}
                             onClick={() => setActiveCategory(activeCategory === cat.id ? null : cat.id)}
-                            className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${activeCategory === cat.id ? 'text-black' : 'text-gray-500 hover:text-gray-900'
+                            className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors ${activeCategory === cat.id ? 'text-white' : 'text-gray-500 hover:text-gray-300'
                                 }`}
                         >
                             <cat.icon className="w-6 h-6" />
@@ -69,20 +69,20 @@ export function MobileControls({
 
             {/* Slide-up Drawer */}
             <div
-                className={`fixed bottom-0 left-0 right-0 bg-white rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transform transition-transform duration-300 ease-out z-40 ${activeCategory ? 'translate-y-0' : 'translate-y-full'
+                className={`fixed bottom-0 left-0 right-0 bg-black text-white rounded-t-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.3)] transform transition-transform duration-300 ease-out z-40 ${activeCategory ? 'translate-y-0' : 'translate-y-full'
                     }`}
                 style={{ paddingBottom: '80px' }} // Space for bottom nav
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
                     <h3 className="text-lg font-bold capitalize">
                         {activeCategory || 'Controls'}
                     </h3>
                     <button
                         onClick={() => setActiveCategory(null)}
-                        className="p-1 hover:bg-gray-100 rounded-full"
+                        className="p-1 hover:bg-gray-800 rounded-full"
                     >
-                        <X className="w-5 h-5 text-gray-500" />
+                        <X className="w-5 h-5 text-gray-400" />
                     </button>
                 </div>
 
@@ -91,7 +91,7 @@ export function MobileControls({
                     {activeCategory === 'canvas' && (
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Width</span>
                                     <span>{params.width}px</span>
                                 </label>
@@ -102,11 +102,11 @@ export function MobileControls({
                                     step="50"
                                     value={params.width}
                                     onChange={(e) => handleChange('width', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Height</span>
                                     <span>{params.height}px</span>
                                 </label>
@@ -117,7 +117,7 @@ export function MobileControls({
                                     step="50"
                                     value={params.height}
                                     onChange={(e) => handleChange('height', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                         </div>
@@ -126,7 +126,7 @@ export function MobileControls({
                     {activeCategory === 'density' && (
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Lines</span>
                                     <span>{params.numLines}</span>
                                 </label>
@@ -136,11 +136,11 @@ export function MobileControls({
                                     max="150"
                                     value={params.numLines}
                                     onChange={(e) => handleChange('numLines', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Spacing</span>
                                     <span>{params.lineSpacing}px</span>
                                 </label>
@@ -151,7 +151,7 @@ export function MobileControls({
                                     step="0.5"
                                     value={params.lineSpacing}
                                     onChange={(e) => handleChange('lineSpacing', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                         </div>
@@ -160,7 +160,7 @@ export function MobileControls({
                     {activeCategory === 'peaks' && (
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Amplitude</span>
                                     <span>{params.maxAmplitude}px</span>
                                 </label>
@@ -170,11 +170,11 @@ export function MobileControls({
                                     max="100"
                                     value={params.maxAmplitude}
                                     onChange={(e) => handleChange('maxAmplitude', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Min Peaks</span>
                                     <span>{params.numPeaksMin}</span>
                                 </label>
@@ -187,11 +187,11 @@ export function MobileControls({
                                         const val = Number(e.target.value);
                                         handleChange('numPeaksMin', Math.min(val, params.numPeaksMax));
                                     }}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Max Peaks</span>
                                     <span>{params.numPeaksMax}</span>
                                 </label>
@@ -204,7 +204,7 @@ export function MobileControls({
                                         const val = Number(e.target.value);
                                         handleChange('numPeaksMax', Math.max(val, params.numPeaksMin));
                                     }}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                         </div>
@@ -213,7 +213,7 @@ export function MobileControls({
                     {activeCategory === 'style' && (
                         <div className="space-y-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Wave Frequency</span>
                                     <span>{params.waveFreq.toFixed(1)}</span>
                                 </label>
@@ -224,11 +224,11 @@ export function MobileControls({
                                     step="0.1"
                                     value={params.waveFreq}
                                     onChange={(e) => handleChange('waveFreq', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Noise Level</span>
                                     <span>{params.noiseLevel.toFixed(2)}</span>
                                 </label>
@@ -239,11 +239,11 @@ export function MobileControls({
                                     step="0.05"
                                     value={params.noiseLevel}
                                     onChange={(e) => handleChange('noiseLevel', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700 flex justify-between">
+                                <label className="text-sm font-medium text-gray-300 flex justify-between">
                                     <span>Stroke Width</span>
                                     <span>{params.strokeWidth.toFixed(1)}px</span>
                                 </label>
@@ -254,21 +254,13 @@ export function MobileControls({
                                     step="0.1"
                                     value={params.strokeWidth}
                                     onChange={(e) => handleChange('strokeWidth', Number(e.target.value))}
-                                    className="w-full accent-black"
+                                    className="w-full accent-white"
                                 />
                             </div>
                         </div>
                     )}
                 </div>
             </div>
-
-            {/* Backdrop */}
-            {activeCategory && (
-                <div
-                    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30"
-                    onClick={() => setActiveCategory(null)}
-                />
-            )}
         </>
     );
 }
