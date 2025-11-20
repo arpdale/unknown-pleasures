@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { MobileControls } from '@/components/MobileControls';
 import { ControlPanel } from '@/components/ControlPanel';
 import { Preview } from '@/components/Preview';
 import { generateJoyDivision, GeneratorParams } from '@/lib/generator';
@@ -52,9 +53,23 @@ export default function Home() {
     };
 
     return (
-        <main className="min-h-screen bg-gray-50 p-4 md:p-8 font-[family-name:var(--font-geist-sans)]">
-            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8">
-                <div className="lg:w-1/3 flex-shrink-0">
+        <main className="min-h-screen bg-gray-50 font-[family-name:var(--font-geist-sans)]">
+            {/* Mobile Layout */}
+            <div className="lg:hidden h-screen flex flex-col">
+                <div className="flex-1 p-4 pb-32 flex items-center justify-center">
+                    <Preview svgContent={svgContent} />
+                </div>
+                <MobileControls
+                    params={params}
+                    setParams={setParams}
+                    onGenerate={handleNewSeed}
+                    onDownload={handleDownload}
+                />
+            </div>
+
+            {/* Desktop Layout */}
+            <div className="hidden lg:flex max-w-7xl mx-auto p-8 gap-8 min-h-screen">
+                <div className="w-1/3 flex-shrink-0">
                     <ControlPanel
                         params={params}
                         setParams={setParams}
@@ -62,7 +77,7 @@ export default function Home() {
                         onDownload={handleDownload}
                     />
                 </div>
-                <div className="lg:w-2/3 flex-grow">
+                <div className="w-2/3 flex-grow">
                     <Preview svgContent={svgContent} />
                 </div>
             </div>
