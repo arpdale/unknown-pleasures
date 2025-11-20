@@ -1,6 +1,7 @@
 import React from 'react';
 import { GeneratorParams } from '../lib/generator';
 import { RefreshCw, Download, Sliders } from 'lucide-react';
+import { DualRangeSlider } from './DualRangeSlider';
 
 interface ControlPanelProps {
     params: GeneratorParams;
@@ -145,37 +146,21 @@ export function ControlPanel({
                             className="w-full accent-black"
                         />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-gray-700">
-                                Min Peaks: {params.numPeaksMin}
-                            </label>
-                            <input
-                                type="range"
-                                min="1"
-                                max="10"
-                                value={params.numPeaksMin}
-                                onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    handleChange('numPeaksMin', Math.min(val, params.numPeaksMax));
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-gray-700 flex justify-between">
+                            <span>Peak Count Range</span>
+                            <span>{params.numPeaksMin} - {params.numPeaksMax}</span>
+                        </label>
+                        <div className="px-2 py-2">
+                            <DualRangeSlider
+                                min={1}
+                                max={15}
+                                minValue={params.numPeaksMin}
+                                maxValue={params.numPeaksMax}
+                                onChange={(min, max) => {
+                                    setParams(prev => ({ ...prev, numPeaksMin: min, numPeaksMax: max }));
                                 }}
-                                className="w-full accent-black"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-xs font-medium text-gray-700">
-                                Max Peaks: {params.numPeaksMax}
-                            </label>
-                            <input
-                                type="range"
-                                min="1"
-                                max="10"
-                                value={params.numPeaksMax}
-                                onChange={(e) => {
-                                    const val = Number(e.target.value);
-                                    handleChange('numPeaksMax', Math.max(val, params.numPeaksMin));
-                                }}
-                                className="w-full accent-black"
+                                theme="light"
                             />
                         </div>
                     </div>

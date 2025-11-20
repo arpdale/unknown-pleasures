@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GeneratorParams } from '../lib/generator';
 import { RefreshCw, Download, X, Settings2, Grid, Activity, Palette } from 'lucide-react';
+import { DualRangeSlider } from './DualRangeSlider';
 
 interface MobileControlsProps {
     params: GeneratorParams;
@@ -33,7 +34,7 @@ export function MobileControls({
     return (
         <>
             {/* Floating Action Buttons - Top Right */}
-            <div className="fixed top-4 right-4 flex flex-col gap-3 z-50">
+            <div className="fixed top-4 right-4 flex gap-3 z-50">
                 <button
                     onClick={onGenerate}
                     className="p-3 bg-black text-white rounded-full shadow-lg hover:bg-gray-800 active:scale-95 transition-all"
@@ -175,37 +176,21 @@ export function MobileControls({
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium text-gray-300 flex justify-between">
-                                    <span>Min Peaks</span>
-                                    <span>{params.numPeaksMin}</span>
+                                    <span>Peak Count Range</span>
+                                    <span>{params.numPeaksMin} - {params.numPeaksMax}</span>
                                 </label>
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="10"
-                                    value={params.numPeaksMin}
-                                    onChange={(e) => {
-                                        const val = Number(e.target.value);
-                                        handleChange('numPeaksMin', Math.min(val, params.numPeaksMax));
-                                    }}
-                                    className="w-full accent-white"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-300 flex justify-between">
-                                    <span>Max Peaks</span>
-                                    <span>{params.numPeaksMax}</span>
-                                </label>
-                                <input
-                                    type="range"
-                                    min="1"
-                                    max="10"
-                                    value={params.numPeaksMax}
-                                    onChange={(e) => {
-                                        const val = Number(e.target.value);
-                                        handleChange('numPeaksMax', Math.max(val, params.numPeaksMin));
-                                    }}
-                                    className="w-full accent-white"
-                                />
+                                <div className="px-2 py-2">
+                                    <DualRangeSlider
+                                        min={1}
+                                        max={15}
+                                        minValue={params.numPeaksMin}
+                                        maxValue={params.numPeaksMax}
+                                        onChange={(min, max) => {
+                                            setParams(prev => ({ ...prev, numPeaksMin: min, numPeaksMax: max }));
+                                        }}
+                                        theme="dark"
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}
