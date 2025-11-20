@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joy Division Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .dual-slider {
+            position: relative;
+            height: 30px;
+            margin-bottom: 10px;
+        }
+
+        .dual-slider input[type="range"] {
+            position: absolute;
+            width: 100%;
+            margin: 0;
+            pointer-events: none;
+            background: transparent;
+            -webkit-appearance: none;
+        }
+
+        /* Remove default track styling */
+        .dual-slider input[type="range"]::-webkit-slider-runnable-track {
+            background: transparent;
+            height: 6px;
+        }
+
+        .dual-slider input[type="range"]::-moz-range-track {
+            background: transparent;
+            height: 6px;
+        }
+
+        /* Style the thumbs */
+        .dual-slider input[type="range"]::-webkit-slider-thumb {
+            pointer-events: auto;
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+
+        .dual-slider input[type="range"]::-moz-range-thumb {
+            pointer-events: auto;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #007bff;
+            cursor: pointer;
+            border: none;
+        }
+
+        .dual-slider input[type="range"]#num-peaks-min {
+            z-index: 1;
+        }
+
+        .dual-slider input[type="range"]#num-peaks-max {
+            z-index: 2;
+        }
+
+        /* Custom track background */
+        .dual-slider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            z-index: 0;
+        }
+
+        /* Highlighted range between handles */
+        .dual-slider .range-highlight {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 6px;
+            background: #007bff;
+            border-radius: 3px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .control-group .value-display {
+            text-align: right;
+            font-size: 12px;
+            color: #888;
+            font-family: monospace;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #000;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #333;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .preview {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 800px;
+        }
+
+        #svg-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        svg {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .seed-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .seed-group input[type="number"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .seed-group button {
+            padding: 8px 12px;
+            flex: 0;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="controls">
+            <h1>Joy Division Generator</h1>
+
+            <div class="control-group">
+                <label>Canvas Width: <span id="width-value">600</span>px</label>
+                <input type="range" id="width" min="400" max="1200" value="600" step="50">
+            </div>
+
+            <div class="control-group">
+                <label>Canvas Height: <span id="height-value">800</span>px</label>
+                <input type="range" id="height" min="600" max="1600" value="800" step="50">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="control-group">
+                <label>Number of Lines: <span id="num-lines-value">80</span></label>
+                <input type="range" id="num-lines" min="40" max="150" value="80" step="1">
+            </div>
+
+            <div class="control-group">
+                <label>Line Spacing: <span id="line-spacing-value">6</span>px</label>
+                <input type="range" id="line-spacing" min="2" max="12" value="6" step="0.5">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="control-group">
+                <label>Peak Height: <span id="amplitude-value">40</span>px</label>
+                <input type="range" id="amplitude" min="10" max="80" value="40" step="1">
+            </div>
+
+            <div class="control-group">
+                <label>Number of Peaks: <span id="num-peaks-value">4-7</span></label>
+                <div class="dual-slider">
+                    <div class="range-highlight" id="peaks-highlight"></div>
+                    <input type="range" id="num-peaks-min" min="1" max="10" value="4" step="1">
+                    <input type="range" id="num-peaks-max" min="1" max="10" value="7" step="1">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Wave Frequency: <span id="wave-freq-value">2.0</span></label>
+                <input type="range" id="wave-freq" min="0.5" max="5" value="2.0" step="0.1">
+                <div class="value-display">Higher = more waves across line</div>
+            </div>
+
+            <div class="control-group">
+                <label>Fine Detail: <span id="noise-value">0.3</span></label>
+                <input type="range" id="noise" min="0" max="2" value="0.3" step="0.05">
+                <div class="value-display">High-frequency texture</div>
+            </div>
+
+            <div class="control-group">
+                <label>Stroke Width: <span id="stroke-value">1.5</span>px</label>
+                <input type="range" id="stroke" min="0.5" max="4" value="1.5" step="0.1">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="control-group">
+                <label>Random Seed</label>
+                <div class="seed-group">
+                    <input type="number" id="seed" value="42">
+                    <button class="btn-secondary" onclick="randomizeSeed()">🎲</button>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="generate()">Generate</button>
+                <button class="btn-secondary" onclick="downloadSVG()">Save SVG</button>
+            </div>
+        </div>
+
+        <div class="preview">
+            <div id="svg-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Seeded random number generator
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed;
+            }
+
+            next() {
+                this.seed = (this.seed * 9301 + 49297) % 233280;
+                return this.seed / 233280;
+            }
+
+            gauss(mean = 0, stdDev = 1) {
+                // Box-Muller transform
+                const u1 = this.next();
+                const u2 = this.next();
+                const z0 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                return mean + z0 * stdDev;
+            }
+
+            uniform(min, max) {
+                return min + this.next() * (max - min);
+            }
+
+            randint(min, max) {
+                return Math.floor(this.uniform(min, max + 1));
+            }
+        }
+
+        // Update value displays and regenerate on input
+        document.querySelectorAll('input[type="range"]').forEach(input => {
+            const valueId = input.id + '-value';
+            const valueDisplay = document.getElementById(valueId);
+
+            input.addEventListener('input', () => {
+                // Handle dual slider constraints
+                if (input.id === 'num-peaks-min' || input.id === 'num-peaks-max') {
+                    const minSlider = document.getElementById('num-peaks-min');
+                    const maxSlider = document.getElementById('num-peaks-max');
+                    const minVal = parseInt(minSlider.value);
+                    const maxVal = parseInt(maxSlider.value);
+
+                    // Prevent handles from crossing
+                    if (input.id === 'num-peaks-min' && minVal > maxVal) {
+                        minSlider.value = maxVal;
+                    }
+                    if (input.id === 'num-peaks-max' && maxVal < minVal) {
+                        maxSlider.value = minVal;
+                    }
+
+                    document.getElementById('num-peaks-value').textContent =
+                        `${minSlider.value}-${maxSlider.value}`;
+
+                    // Update the highlight
+                    updateRangeHighlight();
+                } else if (valueDisplay) {
+                    valueDisplay.textContent = input.value;
+                }
+
+                // Auto-generate on slider change
+                generate();
+            });
+        });
+
+        // Also regenerate when seed changes
+        document.getElementById('seed').addEventListener('input', () => {
+            generate();
+        });
+
+        function updateRangeHighlight() {
+            const minSlider = document.getElementById('num-peaks-min');
+            const maxSlider = document.getElementById('num-peaks-max');
+            const highlight = document.getElementById('peaks-highlight');
+
+            const min = parseInt(minSlider.min);
+            const max = parseInt(minSlider.max);
+            const minVal = parseInt(minSlider.value);
+            const maxVal = parseInt(maxSlider.value);
+
+            // Calculate percentages
+            const minPercent = ((minVal - min) / (max - min)) * 100;
+            const maxPercent = ((maxVal - min) / (max - min)) * 100;
+
+            // Update highlight position and width
+            highlight.style.left = minPercent + '%';
+            highlight.style.width = (maxPercent - minPercent) + '%';
+        }
+
+        function randomizeSeed() {
+            document.getElementById('seed').value = Math.floor(Math.random() * 999999);
+            generate();
+        }
+
+        function generate() {
+            const width = parseInt(document.getElementById('width').value);
+            const height = parseInt(document.getElementById('height').value);
+            const numLines = parseInt(document.getElementById('num-lines').value);
+            const lineSpacing = parseFloat(document.getElementById('line-spacing').value);
+            const maxAmplitude = parseInt(document.getElementById('amplitude').value);
+            const numPeaksMin = parseInt(document.getElementById('num-peaks-min').value);
+            const numPeaksMax = parseInt(document.getElementById('num-peaks-max').value);
+            const waveFreq = parseFloat(document.getElementById('wave-freq').value);
+            const noiseLevel = parseFloat(document.getElementById('noise').value);
+            const strokeWidth = parseFloat(document.getElementById('stroke').value);
+            const seed = parseInt(document.getElementById('seed').value);
+
+            const svg = generateJoyDivision(width, height, numLines, lineSpacing, maxAmplitude,
+                numPeaksMin, numPeaksMax, waveFreq, noiseLevel, strokeWidth, seed);
+
+            document.getElementById('svg-container').innerHTML = svg;
+        }
+
+        function generateJoyDivision(width, height, numLines, lineSpacing, maxAmplitude,
+            numPeaksMin, numPeaksMax, waveFreq, noiseLevel, strokeWidth, seed) {
+
+            const rng = new SeededRandom(seed);
+            const numPoints = 400;
+
+            const totalHeight = numLines * lineSpacing;
+            const startY = (height - totalHeight) / 2;
+
+            let paths = '';
+
+            for (let lineIdx = 0; lineIdx < numLines; lineIdx++) {
+                const baseY = startY + lineIdx * lineSpacing;
+
+                // Generate random peaks for this line
+                const numPeaks = rng.randint(numPeaksMin, numPeaksMax);
+                const peaks = [];
+
+                for (let p = 0; p < numPeaks; p++) {
+                    const peakPos = rng.uniform(0.3, 0.7);
+                    const peakWidth = rng.uniform(0.01, 0.05);
+                    const peakAmp = rng.uniform(0.3, 1.0) * maxAmplitude;
+                    peaks.push({ pos: peakPos, width: peakWidth, amp: peakAmp });
+                }
+
+                // Primary waves - low frequency, large amplitude
+                const primaryWaves = [];
+                const numPrimary = 2 + Math.floor(rng.next() * 2); // 2-3 waves
+                for (let w = 0; w < numPrimary; w++) {
+                    const freq = waveFreq * rng.uniform(0.7, 1.3);
+                    const wavePhase = rng.uniform(0, 2 * Math.PI);
+                    const waveAmp = rng.uniform(0.5, 2.0);
+                    primaryWaves.push({ freq: freq, phase: wavePhase, amp: waveAmp });
+                }
+
+                // Secondary waves - medium frequency, medium amplitude
+                const secondaryWaves = [];
+                const numSecondary = 2 + Math.floor(rng.next() * 2); // 2-3 waves
+                for (let w = 0; w < numSecondary; w++) {
+                    const freq = waveFreq * rng.uniform(3, 6);
+                    const wavePhase = rng.uniform(0, 2 * Math.PI);
+                    const waveAmp = rng.uniform(0.3, 0.8);
+                    secondaryWaves.push({ freq: freq, phase: wavePhase, amp: waveAmp });
+                }
+
+                // Tertiary waves - high frequency, small amplitude (replaces random noise)
+                const tertiaryWaves = [];
+                const numTertiary = 3 + Math.floor(rng.next() * 3); // 3-5 waves
+                for (let w = 0; w < numTertiary; w++) {
+                    const freq = rng.uniform(15, 30);
+                    const wavePhase = rng.uniform(0, 2 * Math.PI);
+                    const waveAmp = noiseLevel * rng.uniform(0.1, 0.3);
+                    tertiaryWaves.push({ freq: freq, phase: wavePhase, amp: waveAmp });
+                }
+
+                // Generate points
+                const linePoints = [];
+                for (let i = 0; i < numPoints; i++) {
+                    const x = (i / (numPoints - 1)) * width;
+                    const xNorm = x / width;
+
+                    // Start with primary waves
+                    let offset = 0;
+                    for (const wave of primaryWaves) {
+                        offset += wave.amp * Math.sin(wave.freq * 2 * Math.PI * xNorm + wave.phase);
+                    }
+
+                    // Add secondary waves
+                    for (const wave of secondaryWaves) {
+                        offset += wave.amp * Math.sin(wave.freq * 2 * Math.PI * xNorm + wave.phase);
+                    }
+
+                    // Add tertiary waves (fine detail)
+                    for (const wave of tertiaryWaves) {
+                        offset += wave.amp * Math.sin(wave.freq * 2 * Math.PI * xNorm + wave.phase);
+                    }
+
+                    // Add peaks
+                    for (const peak of peaks) {
+                        const peakOffset = peak.amp * Math.exp(-Math.pow(xNorm - peak.pos, 2) / (2 * peak.width * peak.width));
+                        offset += peakOffset;
+                    }
+
+                    const y = baseY - offset;
+                    linePoints.push(`${x.toFixed(2)},${y.toFixed(2)}`);
+                }
+
+                // Create line path
+                const linePath = 'M ' + linePoints.join(' L ');
+
+                // Create fill path (for occlusion)
+                // Extend mask slightly beyond next line spacing for proper occlusion
+                const firstPoint = linePoints[0].split(',');
+                const lastPoint = linePoints[linePoints.length - 1].split(',');
+                const maskBottom = baseY + lineSpacing * 1.5;
+                const fillPath = linePath + ` L ${lastPoint[0]},${maskBottom} L ${firstPoint[0]},${maskBottom} Z`;
+
+                // Add fill and stroke
+                paths += `<path d="${fillPath}" fill="white" stroke="none"/>\n`;
+                paths += `<path d="${linePath}" fill="none" stroke="black" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>\n`;
+            }
+
+            return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                <rect width="${width}" height="${height}" fill="white"/>
+                ${paths}
+            </svg>`;
+        }
+
+        function downloadSVG() {
+            const svgElement = document.querySelector('#svg-container svg');
+            if (!svgElement) {
+                alert('Please generate an image first');
+                return;
+            }
+
+            const svgData = svgElement.outerHTML;
+            const seed = document.getElementById('seed').value;
+
+            // POST to server to save file
+            fetch('http://localhost:8000/save-svg', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ svg: svgData, seed: seed })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✓ Saved: ${data.filename}`);
+                } else {
+                    alert('Failed to save file');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to save file. Make sure server.py is running on port 8000.');
+            });
+        }
+
+        // Generate on load
+        window.addEventListener('load', () => {
+            updateRangeHighlight();
+            generate();
+        });
+    </script>
+</body>
+</html>
